@@ -1,0 +1,24 @@
+# Byte-compiled Python files  
+*.pyc  
+
+# Virtual environment directories  
+.venv/  
+venv/  
+
+# IDE configuration  
+.vscode/  
+
+# Package build artifacts  
+dist/  
+build/  
+
+# Log files  
+*.log  
+*.tmp  
+
+# OS junk files  
+.DS_Store  
+Thumbs.db  
+
+# Binary data files  
+Content.ggpk
