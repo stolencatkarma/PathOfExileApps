@@ -311,6 +311,58 @@ class GGPKParser:
             
         with open(self.file_path, 'rb') as f:
             return node.record.extract(f)
+    
+    def get_node_by_path(self, path: str) -> Optional[DirectoryNode]:
+        """
+        Get a node in the directory tree by its path.
+        
+        :param path: Path relative to GGPK root (use '/' as separator)
+        :return: DirectoryNode or None if not found
+        """
+        if not path or path == '/':
+            return self.root
+            
+        parts = [p for p in path.split('/') if p]
+        current = self.root
+        
+        for part in parts:
+            if not current or not current.is_directory:
+                return None
+            if part not in current.children:
+                return None
+            current = current.children[part]
+        return current
+
+    def list_directory(self, path: str) -> list:
+        """
+        List contents of a directory in the GGPK file system.
+        
+        :param path: Path relative to GGPK root
+        :return: List of (name, type) tuples where type is 'dir' or 'file'
+        """
+        node = self.get_node_by_path(path)
+        if not node:
+            raise FileNotFoundError(f"Directory not found: {path}")
+        if not node.is_directory:
+            raise NotADirectoryError(f"Not a directory: {path}")
+            
+        return [(name, 'dir' if child.is_directory else 'file')
+                for name, child in node.children.items()]
+
+    def read_file(self, path: str) -> bytes:
+        """
+        Read file contents from the GGPK.
+        
+        :param path: Full path to file in GGPK
+        :return: File contents as bytes
+        """
+        node = self.get_node_by_path(path)
+        if not node:
+            raise FileNotFoundError(f"File not found: {path}")
+        if node.is_directory:
+            raise IsADirectoryError(f"Path is a directory: {path}")
+            
+        return self.extract_file(node)
 
     def print_tree(self, node: Optional[DirectoryNode] = None, indent: int = 0):
         """
